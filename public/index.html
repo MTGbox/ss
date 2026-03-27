@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRMS 4</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <section class="auth-shell" id="authShell">
+        <div class="auth-card">
+            <div class="auth-copy">
+                <span class="eyebrow">Campus Resource Management</span>
+                <h1>Manage campus facilities, equipment, books, contacts, and accommodation in one place.</h1>
+                <p>Users can request bookings and admins can approve them from a separate portal. All data is stored in MongoDB and reflected across the dashboard.</p>
+                <div class="demo-box">
+                    <strong>Demo accounts</strong>
+                    <span>Admin: `admin@campus.edu` / `admin123`</span>
+                    <span>User: `student@campus.edu` / `user123`</span>
+                </div>
+            </div>
+            <div class="auth-panel">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-auth-view="user-login">User Login</button>
+                    <button class="auth-tab" data-auth-view="admin-login">Admin Login</button>
+                    <button class="auth-tab" data-auth-view="register">Create Account</button>
+                </div>
+
+                <form class="auth-form active" id="userLoginForm" data-auth-form="user-login">
+                    <h2>User Login</h2>
+                    <input name="email" type="email" placeholder="Email" required>
+                    <input name="password" type="password" placeholder="Password" required>
+                    <button class="btn-primary auth-submit" type="submit">Login as User</button>
+                </form>
+
+                <form class="auth-form" id="adminLoginForm" data-auth-form="admin-login">
+                    <h2>Admin Login</h2>
+                    <input name="email" type="email" placeholder="Admin email" required>
+                    <input name="password" type="password" placeholder="Password" required>
+                    <button class="btn-primary auth-submit" type="submit">Login as Admin</button>
+                </form>
+
+                <form class="auth-form" id="registerForm" data-auth-form="register">
+                    <h2>Create Account</h2>
+                    <input name="full_name" type="text" placeholder="Full name" required>
+                    <input name="department" type="text" placeholder="Department" required>
+                    <input name="email" type="email" placeholder="Email" required>
+                    <input name="password" type="password" placeholder="Password" required>
+                    <button class="btn-primary auth-submit" type="submit">Create User Account</button>
+                </form>
+
+                <p class="auth-message" id="authMessage"></p>
+            </div>
+        </div>
+    </section>
+
+    <div class="app-shell hidden" id="appShell">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="brand-mark">
+                    <i class="fa-regular fa-building"></i>
+                </div>
+                <div class="brand-copy">
+                    <span class="brand-title">CRMS</span>
+                    <span class="brand-subtitle">Campus Resource Management System</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-module="dashboard"><i class="fa-solid fa-border-all"></i><span>Dashboard</span></a>
+                <a href="#" class="nav-item admin-only hidden" data-module="adminRequestsModule"><i class="fa-solid fa-clipboard-check"></i><span>Approval Queue</span></a>
+                <a href="#" class="nav-item" data-module="facilities"><i class="fa-regular fa-building"></i><span>Facilities</span></a>
+                <a href="#" class="nav-item" data-module="equipment"><i class="fa-solid fa-desktop"></i><span>Equipment</span></a>
+                <a href="#" class="nav-item" data-module="people"><i class="fa-regular fa-user-group"></i><span>People</span></a>
+                <a href="#" class="nav-item" data-module="library"><i class="fa-solid fa-book-open"></i><span>Library</span></a>
+                <a href="#" class="nav-item" data-module="students"><i class="fa-solid fa-bed"></i><span>Student Services</span></a>
+                <a href="#" class="nav-item" data-module="settings"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="profile-chip">
+                    <div class="profile-avatar" id="sidebarAvatar">U</div>
+                    <div class="profile-copy">
+                        <span class="profile-name" id="sidebarUserName">User</span>
+                        <span class="profile-role" id="sidebarUserRole">User</span>
+                    </div>
+                    <button class="logout-icon" id="logoutBtn" title="Logout">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div class="search-shell">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input id="globalSearch" type="text" placeholder="Search resources, bookings...">
+                </div>
+                <div class="topbar-actions">
+                    <button class="header-icon admin-only hidden" id="refreshAdminRequests" title="Refresh approval queue">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
+                    <button class="header-icon" id="showAnnouncementsBtn" title="Announcements">
+                        <i class="fa-regular fa-bell"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div class="page-body">
+                <section class="module active" id="dashboard">
+                    <div class="section-heading dashboard-heading">
+                        <div>
+                            <h1><i class="fa-solid fa-chart-pie"></i> Dashboard</h1>
+                            <p>Campus Resource Management Overview</p>
+                        </div>
+                    </div>
+                    <div class="stats-grid">
+                        <article class="metric-card accent-red">
+                            <div class="metric-icon"><i class="fa-regular fa-building"></i></div>
+                            <div class="metric-copy">
+                                <strong id="statFacilities">0</strong>
+                                <span>Total Facilities</span>
+                            </div>
+                            <div class="metric-pill small-pill">+12%</div>
+                        </article>
+                        <article class="metric-card accent-blue">
+                            <div class="metric-icon"><i class="fa-regular fa-calendar-check"></i></div>
+                            <div class="metric-copy">
+                                <strong id="statBookings">0</strong>
+                                <span>Active Bookings</span>
+                            </div>
+                            <div class="metric-pill small-pill">+8%</div>
+                        </article>
+                        <article class="metric-card accent-green">
+                            <div class="metric-icon"><i class="fa-regular fa-users"></i></div>
+                            <div class="metric-copy">
+                                <strong id="statUsers">0</strong>
+                                <span>Total Users</span>
+                            </div>
+                            <div class="metric-pill small-pill">+5%</div>
+                        </article>
+                        <article class="metric-card accent-purple">
+                            <div class="metric-icon"><i class="fa-solid fa-desktop"></i></div>
+                            <div class="metric-copy">
+                                <strong id="statEquipment">0</strong>
+                                <span>Equipment Items</span>
+                            </div>
+                            <div class="metric-pill small-pill">+15%</div>
+                        </article>
+                    </div>
+
+                    <div class="dashboard-main-layout">
+                        <div class="dashboard-left-stack">
+                            <article class="panel panel-chart">
+                                <div class="panel-header">
+                                    <h3><i class="fa-solid fa-arrow-trend-up"></i> Resource Utilization</h3>
+                                </div>
+                                <div class="utilization-chart" id="utilizationChart"></div>
+                            </article>
+
+                            <article class="panel panel-wide lower-dashboard-grid">
+                                <div class="panel-header">
+                                    <h3><i class="fa-solid fa-bullhorn"></i> Announcements</h3>
+                                </div>
+                                <form class="admin-form admin-only hidden dashboard-form" id="announcementCreateForm">
+                                    <input name="title" type="text" placeholder="Announcement title" required>
+                                    <input name="message" type="text" placeholder="Announcement message" required>
+                                    <button class="btn-primary" type="submit">Publish</button>
+                                </form>
+                                <div class="announcement-feed" id="announcements"></div>
+                            </article>
+                        </div>
+
+                        <article class="panel panel-side">
+                            <div class="panel-header">
+                                <h3><i class="fa-regular fa-calendar"></i> Recent Bookings</h3>
+                                <button class="metric-pill admin-only hidden" id="pendingApprovals">0 pending</button>
+                            </div>
+                            <div class="recent-stack" id="recentBookings"></div>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="module" id="facilities">
+                    <div class="section-heading">
+                        <div>
+                            <h1><i class="fa-regular fa-building"></i> Facilities & Spaces</h1>
+                            <p>Manage and book campus rooms, halls, and labs.</p>
+                        </div>
+                        <button class="btn-secondary admin-only hidden" id="showAddFacilityForm">Add Facility</button>
+                    </div>
+                    <div class="pill-row" id="facilityFilterChips"></div>
+                    <form class="admin-form admin-only hidden" id="facilityCreateForm">
+                        <input name="name" type="text" placeholder="Facility name" required>
+                        <input name="category" type="text" placeholder="Category" required>
+                        <input name="capacity" type="number" min="1" placeholder="Capacity" required>
+                        <input name="location" type="text" placeholder="Location" required>
+                        <input name="description" type="text" placeholder="Description">
+                        <button class="btn-primary" type="submit">Save Facility</button>
+                    </form>
+                    <div class="card-grid facilities-grid" id="facilityGrid"></div>
+                </section>
+
+                <section class="module" id="equipment">
+                    <div class="section-heading">
+                        <div>
+                            <h1><i class="fa-solid fa-desktop"></i> Equipment Inventory</h1>
+                            <p>Browse and borrow campus equipment and devices.</p>
+                        </div>
+                    </div>
+                    <form class="admin-form admin-only hidden" id="equipmentCreateForm">
+                        <input name="name" type="text" placeholder="Equipment name" required>
+                        <input name="category" type="text" placeholder="Category" required>
+                        <input name="total_quantity" type="number" min="1" placeholder="Quantity" required>
+                        <input name="description" type="text" placeholder="Description">
+                        <button class="btn-primary" type="submit">Add Equipment</button>
+                    </form>
+                    <div class="card-grid equipment-grid" id="equipmentGrid"></div>
+                </section>
+
+                <section class="module" id="people">
+                    <div class="section-heading">
+                        <div>
+                            <h1><i class="fa-regular fa-user-group"></i> Campus Directory</h1>
+                            <p>Find faculty and staff contact information.</p>
+                        </div>
+                    </div>
+                    <form class="admin-form admin-only hidden" id="personCreateForm">
+                        <input name="name" type="text" placeholder="Name" required>
+                        <input name="title" type="text" placeholder="Title" required>
+                        <input name="department" type="text" placeholder="Department" required>
+                        <input name="email" type="email" placeholder="Email" required>
+                        <input name="phone" type="text" placeholder="Phone" required>
+                        <input name="office" type="text" placeholder="Office" required>
+                        <button class="btn-primary" type="submit">Add Contact</button>
+                    </form>
+                    <div class="card-grid people-grid" id="peopleList"></div>
+                </section>
+
+                <section class="module" id="library">
+                    <div class="section-heading">
+                        <div>
+                            <h1><i class="fa-solid fa-book-open"></i> Campus Library</h1>
+                            <p>Digital catalog and book borrowing system.</p>
+                        </div>
+                    </div>
+                    <form class="admin-form admin-only hidden" id="bookCreateForm">
+                        <input name="title" type="text" placeholder="Book title" required>
+                        <input name="author" type="text" placeholder="Author" required>
+                        <input name="isbn" type="text" placeholder="ISBN" required>
+                        <input name="total_quantity" type="number" min="1" placeholder="Quantity" required>
+                        <input name="description" type="text" placeholder="Description">
+                        <button class="btn-primary" type="submit">Add Book</button>
+                    </form>
+                    <div class="card-grid library-grid" id="libraryGrid"></div>
+                </section>
+
+                <section class="module" id="students">
+                    <div class="section-heading">
+                        <div>
+                            <h1><i class="fa-solid fa-bed"></i> Accommodation Services</h1>
+                            <p>Book campus hostels and guest hotels.</p>
+                        </div>
+                    </div>
+                    <form class="admin-form admin-only hidden" id="serviceCreateForm">
+                        <input name="name" type="text" placeholder="Service name" required>
+                        <input name="service_type" type="text" placeholder="Type" required>
+                        <input name="capacity" type="number" min="1" placeholder="Capacity" required>
+                        <input name="description" type="text" placeholder="Description">
+                        <button class="btn-primary" type="submit">Add Service</button>
+                    </form>
+                    <div class="card-grid student-grid" id="studentServiceGrid"></div>
+                </section>
+
+                <section class="module" id="settings">
+                    <div class="settings-layout">
+                        <div class="settings-nav-panel">
+                            <button class="settings-link active" data-settings-tab="profile"><i class="fa-regular fa-user"></i><span>Profile Info</span></button>
+                            <button class="settings-link" data-settings-tab="notifications"><i class="fa-regular fa-bell"></i><span>Notifications</span></button>
+                            <button class="settings-link" data-settings-tab="security"><i class="fa-regular fa-shield"></i><span>Security</span></button>
+                        </div>
+                        <div class="settings-card">
+                            <div class="settings-tab active" id="settingsProfile">
+                                <h2>Profile Information</h2>
+                                <div class="settings-hero">
+                                    <div class="settings-avatar" id="settingsAvatar">U</div>
+                                    <button class="btn-outline" type="button">Change Avatar</button>
+                                </div>
+                                <div class="settings-grid">
+                                    <label><span>Full Name</span><input type="text" id="settingsName" readonly></label>
+                                    <label><span>Email Address</span><input type="text" id="settingsEmail" readonly></label>
+                                    <label><span>Account Role</span><input type="text" id="settingsRole" readonly></label>
+                                    <label><span>Department</span><input type="text" id="settingsDepartment" readonly></label>
+                                </div>
+                                <div class="settings-actions">
+                                    <button class="btn-primary" type="button">Save Changes</button>
+                                </div>
+                            </div>
+                            <div class="settings-tab" id="settingsNotifications">
+                                <h2>Notifications</h2>
+                                <div class="toggle-list">
+                                    <div class="toggle-row"><div><strong>Email Notifications</strong><span>Receive updates for requests and approvals.</span></div><label class="switch"><input checked type="checkbox"><span></span></label></div>
+                                    <div class="toggle-row"><div><strong>Booking Alerts</strong><span>Show reminders for upcoming reservations.</span></div><label class="switch"><input checked type="checkbox"><span></span></label></div>
+                                    <div class="toggle-row"><div><strong>Admin Queue Alerts</strong><span>Notify admins when a new booking request arrives.</span></div><label class="switch"><input checked type="checkbox"><span></span></label></div>
+                                </div>
+                            </div>
+                            <div class="settings-tab" id="settingsSecurity">
+                                <h2>Security</h2>
+                                <div class="security-box">
+                                    <p>Your account is currently protected by role-based access and server-side session validation.</p>
+                                    <button class="btn-outline" type="button">Reset Password</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="module admin-only hidden" id="adminRequestsModule">
+                    <div class="section-heading">
+                        <div>
+                            <h1><i class="fa-solid fa-clipboard-check"></i> Approval Queue</h1>
+                            <p>Approve or reject facility, equipment, and accommodation requests.</p>
+                        </div>
+                    </div>
+                    <div class="queue-grid">
+                        <article class="panel"><div class="panel-header"><h3>Facility Requests</h3></div><div class="queue-body" id="facilityRequests"></div></article>
+                        <article class="panel"><div class="panel-header"><h3>Equipment Requests</h3></div><div class="queue-body" id="equipmentRequests"></div></article>
+                        <article class="panel"><div class="panel-header"><h3>Service Requests</h3></div><div class="queue-body" id="serviceRequests"></div></article>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal-shell hidden" id="actionModal">
+        <div class="modal-card">
+            <div class="modal-head">
+                <h3 id="modalTitle">Action</h3>
+                <button class="header-icon" id="closeModalBtn" type="button"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="modalForm" class="modal-form"></form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <script src="/app.js"></script>
+</body>
+</html>
